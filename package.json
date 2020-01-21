@@ -1,0 +1,24 @@
+{
+  "name": "bttv-gif-emote-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CalebBabin/BTTV-gif-emote-server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CalebBabin/BTTV-gif-emote-server/issues"
+  },
+  "homepage": "https://github.com/CalebBabin/BTTV-gif-emote-server#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "gif-extract-frames": "^1.0.2",
+    "gif-frames": "^1.0.1"
+  }
+}
