@@ -45,7 +45,10 @@ app.get('/gif/:id', (req, res)=>{
                     
                 })
                 .catch(err => {
-                    res.send('error extracting gif');
+                    res.json({
+                        count: 0,
+                        error: "Error extracting GIF"
+                    });
                 })
             });
             response.pipe(file);
