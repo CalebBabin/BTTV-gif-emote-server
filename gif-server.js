@@ -10,11 +10,11 @@ if (!fs.existsSync(`${__dirname}/gifs`)) {
     fs.mkdirSync(`${__dirname}/gifs`);
 }
 
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-})
+//app.use((req, res, next) => {
+//    res.header('Access-Control-Allow-Origin', '*');
+//    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//    next();
+//})
 
 app.use('/static', express.static(path.join(__dirname, 'gifs')));
 
