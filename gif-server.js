@@ -41,6 +41,7 @@ app.get('/gif/:id', (req, res)=>{
         const file = fs.createWriteStream(fileDir);
         const request = https.get(`https://cdn.betterttv.net/emote/${id}/3x`, function(response) {
             response.on('end', () => {
+                if (!fs.existsSync(dir)) {
                 fs.mkdirSync(dir)
                 extractFrames({
                     input: fileDir,
@@ -65,6 +66,7 @@ app.get('/gif/:id', (req, res)=>{
                     fs.unlink(fileDir);
                     fs.rmdirSync(dir);
                 })
+                }
             });
             response.pipe(file);
         });
