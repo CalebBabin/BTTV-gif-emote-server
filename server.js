@@ -10,6 +10,12 @@ if (!fs.existsSync(`${__dirname}/gifs`)) {
     fs.mkdirSync(`${__dirname}/gifs`);
 }
 
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+})
+
 app.use('/static', express.static(path.join(__dirname, 'gifs')));
 
 app.get('/gif/:id', (req, res)=>{
@@ -33,7 +39,8 @@ app.get('/gif/:id', (req, res)=>{
                 fs.mkdirSync(dir)
                 extractFrames({
                     input: fileDir,
-                    output: dir+'/%d.png'
+                    output: dir+'/%d.png',
+                    coalesce: false,
                 })
                 .then((data)=>{
                     const json = JSON.stringify({
