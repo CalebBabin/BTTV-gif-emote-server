@@ -31,6 +31,11 @@ app.get('/gif/:id', (req, res)=>{
             cacheHit: true
         }));
 
+    } else if (fs.existsSync(`${__dirname}/gifs/${id}.exists`)) {
+        resj.json({
+            count: 0,
+            id: id,
+        })
     } else {
         const fileDir = `${__dirname}/gifs/${id}.gif`;
         const file = fs.createWriteStream(fileDir);
@@ -56,6 +61,9 @@ app.get('/gif/:id', (req, res)=>{
                         count: 0,
                         error: "Error extracting GIF"
                     });
+                    fs.writeFileSync(`${__dirname}/gifs/${id}.exists`, '');
+                    fs.unlink(fileDir);
+                    fs.rmdirSync(dir);
                 })
             });
             response.pipe(file);
