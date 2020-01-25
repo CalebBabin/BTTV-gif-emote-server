@@ -32,7 +32,7 @@ app.get('/gif/:id', (req, res)=>{
         }));
 
     } else if (fs.existsSync(`${__dirname}/gifs/${id}.exists`)) {
-        resj.json({
+        res.json({
             count: 0,
             id: id,
         })
