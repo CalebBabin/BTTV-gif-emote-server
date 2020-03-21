@@ -37,15 +37,6 @@ app.get('/gif/:id', (req, res) => {
         } else {
             res.sendFile(fileDir);
         }
-    } else if (fs.existsSync(dir)) {
-        const files = fs.readdirSync(dir);
-
-        res.send(JSON.stringify({
-            count: files.length,
-            id: id,
-            cacheHit: true
-        }));
-
     } else if (fs.existsSync(`${__dirname}/gifs/${id}.json`)) {
         res.sendFile(`${__dirname}/gifs/${id}.json`);
     } else {
