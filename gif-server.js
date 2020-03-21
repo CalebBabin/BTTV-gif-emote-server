@@ -42,7 +42,15 @@ app.get('/gif/:id', (req, res) => {
     } else {
         tryGettingFile(id, dir)
         .then((data) => {
-            res.sendFile(`${__dirname}/gifs/${id}.json`);
+            const interval = setInterval(()=>{
+                if (fs.existsSync(`${__dirname}/gifs/${id}.json`)) {
+                    clearInterval(interval);
+                    res.sendFile(`${__dirname}/gifs/${id}.json`);
+                }
+            }, 1000)
+            setTimeout(()=>{
+                clearInterval(interval);
+            }, 10000);
         })
         .catch((error) => {
             console.log(error)
