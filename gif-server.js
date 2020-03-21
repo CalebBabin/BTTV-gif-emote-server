@@ -51,7 +51,6 @@ app.get('/gif/:id', (req, res) => {
     } else {
         tryGettingFile(id, dir)
         .then((data) => {
-            console.log(data);
             const json = JSON.stringify({
                 count: data.count,
                 frames: data.frames,
