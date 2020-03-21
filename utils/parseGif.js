@@ -1,7 +1,7 @@
 const extractFrames = require('gif-frames');
 const fs = require('fs');
 
-const generateSpritemap = require('./generateSpritemap.js');
+//const generateSpritemap = require('./generateSpritemap.js');
 
 const parseGif = (id, destinationDirectory, jsonLocation, gifURL, gifDirectory) => {
 	return new Promise((resolve, reject) => {
