@@ -39,7 +39,7 @@ app.get('/gif/:id', (req, res) => {
         }
     } else if (fs.existsSync(`${__dirname}/gifs/${id}.json`)) {
         res.sendFile(`${__dirname}/gifs/${id}.json`);
-    } else if (!fs.existsSync(`${__dirname}/gifs/${id}.gif`)) {
+    } else {
         tryGettingFile(id, dir)
         .then((data) => {
             res.sendFile(`${__dirname}/gifs/${id}.json`);
@@ -52,8 +52,6 @@ app.get('/gif/:id', (req, res) => {
             });
             fs.rmdirSync(dir);
         });
-    } else {
-        res.sendStatus(500);
     }
 })
 
