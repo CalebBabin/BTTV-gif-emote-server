@@ -1,9 +1,12 @@
-const extractFrames = require('gif-frames');
 const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const https = require('https');
+
+const tryGettingFile = require('./utils/download.js');
+
+global.rootDirectory = __dirname;
+
 
 const app = express();
 app.use(cors());
@@ -24,6 +27,11 @@ app.get('/gif/:id', (req, res) => {
     const id = req.params.id.replace(/\W/g, '');
     const dir = `${__dirname}/gifs/${id}`;
 
+    let parsedJSONData = {};
+    if (fs.existsSync(`${__dirname}/gifs/${id}.json`)) {
+        parsedJSONData = JSON.parse(fs.readFileSync(`${__dirname}/gifs/${id}.json`, {encoding: 'utf-8'}))
+    }
+
     if (req.params.id.includes('.gif')) {
         const fileDir = `${__dirname}/gifs/${id.replace(/gif$/, '.gif')}`;
         if (!fs.existsSync(fileDir)) {
@@ -37,20 +45,12 @@ app.get('/gif/:id', (req, res) => {
         } else {
             res.sendFile(fileDir);
         }
-    } else if (fs.existsSync(`${__dirname}/gifs/${id}.json`)) {
+    } else if (fs.existsSync(`${__dirname}/gifs/${id}.json`) && parsedJSONData.state === 'completed') {
         res.sendFile(`${__dirname}/gifs/${id}.json`);
     } else {
         tryGettingFile(id, dir)
         .then((data) => {
-            const interval = setInterval(()=>{
-                if (fs.existsSync(`${__dirname}/gifs/${id}.json`)) {
-                    clearInterval(interval);
-                    res.sendFile(`${__dirname}/gifs/${id}.json`);
-                }
-            }, 1000)
-            setTimeout(()=>{
-                clearInterval(interval);
-            }, 10000);
+            res.sendFile(`${__dirname}/gifs/${id}.json`);
         })
         .catch((error) => {
             console.log(error)
@@ -58,77 +58,10 @@ app.get('/gif/:id', (req, res) => {
                 count: 0,
                 error: "Error extracting GIF"
             });
-            fs.rmdirSync(dir);
         });
     }
 })
 
-const tryGettingFile = (id, dir) => {
-    return new Promise((resolve, reject) => {
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir)
-        }
-
-        const fileDir = `${__dirname}/gifs/${id}.gif`;
-        const gifURL = `https://cdn.betterttv.net/emote/${id}/3x`;
-
-        
-        const file = fs.createWriteStream(fileDir);
-        const request = https.get(gifURL, function (response) {
-            /*response.on('end', ()=>{
-                fs.writeFileSync(`${__dirname}/gifs/${id}.json`, JSON.stringify({
-                    count: 0,
-                    frames: [],
-                }));
-                resolve({
-                    count: 0,
-                    frames: [],
-                })
-            })*/
-            response.pipe(file);
-        });
-
-        extractFrames({
-            url: gifURL,
-            frames: 'all',
-            outputType: 'png'
-        }).then(function (frameData) {
-            const promises = [];
-            const frames = new Array(frameData.length);
-            for (let index = 0; index < frameData.length; index++) {
-                const frameFileDirectory = `${dir}/${frameData[index].frameIndex}.png`;
-                frames[frameData[index].frameIndex] = frameData[index].frameInfo;
-                promises.push(frameData[index]
-                    .getImage()
-                    .pipe(
-                        fs.createWriteStream(frameFileDirectory)
-                    )
-                );
-            }
-            Promise.all(promises).then((data) => {
-
-                fs.writeFileSync(`${__dirname}/gifs/${id}.json`, JSON.stringify({
-                    count: frames.length,
-                    frames: frames,
-                }));
-
-                resolve({
-                    count: frameData.length,
-                    frames: frames,
-                });
-            })
-            .catch(err => {
-                reject(err);
-            });
-        }).catch(err => {
-            resolve({
-                count: 0,
-                frames: [],
-            });
-        })
-
-    });
-}
 
 app.use((req, res, next) => {
     res.status(404).send('404');
