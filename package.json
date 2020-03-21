@@ -19,7 +19,6 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "gif-extract-frames": "^1.0.2",
     "gif-frames": "^1.0.1"
   }
 }

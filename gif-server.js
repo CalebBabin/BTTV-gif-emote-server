@@ -1,4 +1,4 @@
-const extractFrames = require('gif-extract-frames');
+const extractFrames = require('gif-frames');
 const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
@@ -46,27 +46,26 @@ app.get('/gif/:id', (req, res) => {
             cacheHit: true
         }));
 
-    } else if (fs.existsSync(`${__dirname}/gifs/${id}.exists`)) {
-        res.json({
-            count: 0,
-            id: id,
-        })
+    } else if (fs.existsSync(`${__dirname}/gifs/${id}.json`)) {
+        res.sendFile(`${__dirname}/gifs/${id}.json`);
     } else {
         tryGettingFile(id, dir)
         .then((data) => {
+            console.log(data);
             const json = JSON.stringify({
-                count: data.shape[0],
+                count: data.count,
+                frames: data.frames,
                 id: id,
                 cacheHit: false
             });
             res.send(json);
         })
         .catch((error) => {
+            console.log(error)
             res.json({
                 count: 0,
                 error: "Error extracting GIF"
             });
-            fs.writeFileSync(`${__dirname}/gifs/${id}.exists`, '');
             fs.rmdirSync(dir);
         });
     }
@@ -74,27 +73,68 @@ app.get('/gif/:id', (req, res) => {
 
 const tryGettingFile = (id, dir) => {
     return new Promise((resolve, reject) => {
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir)
+        }
+
         const fileDir = `${__dirname}/gifs/${id}.gif`;
+        const gifURL = `https://cdn.betterttv.net/emote/${id}/3x`;
+
+        
         const file = fs.createWriteStream(fileDir);
-        const request = https.get(`https://cdn.betterttv.net/emote/${id}/3x`, function (response) {
-            response.on('end', () => {
-                if (!fs.existsSync(dir)) {
-                    fs.mkdirSync(dir)
-                    extractFrames({
-                        input: fileDir,
-                        output: dir + '/%d.png',
-                        coalesce: false,
-                    })
-                    .then((data) => {
-                        resolve(data);
-                    })
-                    .catch(err => {
-                        reject(err);
-                    })
-                }
-            });
+        const request = https.get(gifURL, function (response) {
+            response.on('end', ()=>{
+                fs.writeFileSync(`${__dirname}/gifs/${id}.json`, JSON.stringify({
+                    count: 0,
+                    frames: [],
+                }));
+                resolve({
+                    count: 0,
+                    frames: [],
+                })
+            })
             response.pipe(file);
         });
+
+        extractFrames({
+            url: gifURL,
+            frames: 'all',
+            outputType: 'png'
+        }).then(function (frameData) {
+            const promises = [];
+            const frames = new Array(frameData.length);
+            for (let index = 0; index < frameData.length; index++) {
+                const frameFileDirectory = `${dir}/${frameData[index].frameIndex}.png`;
+                frames[frameData[index].frameIndex] = frameData[index].frameInfo;
+                promises.push(frameData[index]
+                    .getImage()
+                    .pipe(
+                        fs.createWriteStream(frameFileDirectory)
+                    )
+                );
+            }
+            Promise.all(promises).then((data) => {
+
+                fs.writeFileSync(`${__dirname}/gifs/${id}.json`, JSON.stringify({
+                    count: frames.length,
+                    frames: frames,
+                }));
+
+                resolve({
+                    count: frameData.length,
+                    frames: frames,
+                });
+            })
+            .catch(err => {
+                reject(err);
+            });
+        }).catch(err => {
+            resolve({
+                count: 0,
+                frames: [],
+            });
+        })
+
     });
 }
 
