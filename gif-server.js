@@ -69,7 +69,7 @@ const tryGettingFile = (id, dir) => {
         
         const file = fs.createWriteStream(fileDir);
         const request = https.get(gifURL, function (response) {
-            response.on('end', ()=>{
+            /*response.on('end', ()=>{
                 fs.writeFileSync(`${__dirname}/gifs/${id}.json`, JSON.stringify({
                     count: 0,
                     frames: [],
@@ -78,7 +78,7 @@ const tryGettingFile = (id, dir) => {
                     count: 0,
                     frames: [],
                 })
-            })
+            })*/
             response.pipe(file);
         });
 
