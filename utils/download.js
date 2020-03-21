@@ -1,5 +1,4 @@
 const extractFrames = require('gif-frames');
-const Spritesmith = require('spritesmith');
 const https = require('https');
 const fs = require('fs');
 
