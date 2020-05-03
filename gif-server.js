@@ -64,7 +64,7 @@ app.get('/gif/:id', (req, res) => {
 })
 
 app.get('/channel/username/:username', (req, res) => {
-    const filtered_username = req.params.username.replace( /[^a-zA-Z0-9]/ , "");
+    const filtered_username = req.params.username.split('.')[0].replace( /[^a-zA-Z0-9]/ , "");
     fetch("https://api.twitch.tv/helix/users?login="+filtered_username, {
         headers: {
             "Client-ID": "6ro4h73lmdtiaxzhq6t5c7fr9ix50r"
