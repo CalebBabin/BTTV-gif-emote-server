@@ -76,6 +76,7 @@ app.get('/channel/username/:username', (req, res) => {
             getBTTVEmotes(body.data[0].id)
             .then(data => {
                 res.set('Cache-Control', 'max-age=3600')
+                res.set('expires', '1h')
                 res.json(data);
             })
             .catch(e => {
