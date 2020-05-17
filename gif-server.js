@@ -65,15 +65,16 @@ app.get('/gif/:id', (req, res) => {
 
 app.get('/channel/username/:username', (req, res) => {
     const filtered_username = req.params.username.split('.')[0].replace( /[^a-zA-Z0-9]/ , "");
-    fetch("https://api.twitch.tv/helix/users?login="+filtered_username, {
+    fetch("https://api.twitch.tv/kraken/users?login="+filtered_username, {
         headers: {
+            "Accept": "application/vnd.twitchtv.v5+json",
             "Client-ID": "6ro4h73lmdtiaxzhq6t5c7fr9ix50r"
         }
     })
     .then(response => response.json())
     .then(body => {
-        if (body && body.data && body.data[0] && body.data[0].id) {
-            getBTTVEmotes(body.data[0].id)
+        if (body && body.users && body.users[0] && body.users[0]._id) {
+            getBTTVEmotes(body.users[0]._id)
             .then(data => {
                 res.set('Cache-Control', 'max-age=3600')
                 res.set('expires', '1h')
