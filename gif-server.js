@@ -64,7 +64,7 @@ app.get('/gif/:id', (req, res) => {
 })
 
 app.get('/channel/username/:username', (req, res) => {
-    const filtered_username = req.params.username.split('.')[0].replace( /[^a-zA-Z0-9]/ , "");
+    const filtered_username = req.params.username.split('.')[0].replace( /[^a-zA-Z0-9_]/g , "");
     fetch("https://api.twitch.tv/kraken/users?login="+filtered_username, {
         headers: {
             "Accept": "application/vnd.twitchtv.v5+json",
